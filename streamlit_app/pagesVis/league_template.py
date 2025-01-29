@@ -25,7 +25,7 @@ def loadPage(current_league):
         league_name = "Serie A"
     else:
         league_name = "None of top 5"
-        # Dodaj inne komponenty dla Serie A
+
     if 'theme' not in st.session_state:
         st.session_state.theme = 'light'
 
@@ -38,21 +38,6 @@ def loadPage(current_league):
 
     """
     st.html(f"<style>{css}</style>")
-
-    # Chowanie statystyk po zmianie filtrów
-    def restartStats():
-        pass
-        # for i in range (st.session_state["PLnumber_of_matches"]):
-        #     if f"PLshow_row_{i}" in st.session_state:
-        #         st.session_state[f"PLshow_row_{i}"] = False
-
-    # chyba do usunięcia
-    def showDateButton():
-        if len(season_filter_matches) == 0:
-            st.session_state["show_tablePL"] = True
-        else:
-            st.session_state["show_tablePL"] = False
-        restartStats()
 
     @st.cache_data
     def statsGraph(home_stats, away_stats, categories):
@@ -92,15 +77,18 @@ def loadPage(current_league):
         plt.tight_layout()
         st.pyplot(plt)
 
+    @st.cache_resource
     def load_model(model_path):
         model = torch.load(model_path, map_location=torch.device('cpu'))
         model.eval()
         return model
 
+    @st.cache_resource
     def load_scaler(scaler_path):
         scaler = joblib.load(scaler_path)
         return scaler
 
+    @st.cache_resource
     def load_selected_fetures(selected_features_path):
         with open(selected_features_path, "r", encoding="utf-8") as f:
             selected_features = json.load(f)
@@ -117,8 +105,8 @@ def loadPage(current_league):
             input_tensor = torch.tensor(input_features, dtype=torch.float32)
             prediction = model(input_tensor)
             return prediction.squeeze()[0].item(), prediction.squeeze()[1].item(), prediction.squeeze()[2].item()
-
-
+        
+    @st.cache_data
     def generate_html_table(teams_stats):
         html_template = """
             <style>
@@ -226,7 +214,7 @@ def loadPage(current_league):
 
     def getCourse(prob):
         return round(1 / prob, 2)
-
+    @st.cache_data
     def generate_html_match_list(df):
         scaler_outcome = load_scaler("./models/outcome_scaler.pkl")
         selected_features_outcome = load_selected_fetures("./models/outcome_features.json")
@@ -464,19 +452,11 @@ def loadPage(current_league):
     standings_filtered=standings.copy()
     df_filtered_new = df_new.copy()
 
-    # if "PLseason_filter" not in st.session_state:
-    #     st.session_state["PLseason_filter"] = []
-    # if "PLteam_filter" not in st.session_state:
-    #     st.session_state["PLteam_filter"] = []
-    # if "PLnumber_of_matches" not in st.session_state:
-    #     st.session_state["PLnumber_of_matches"] = 10
-
-
     st.title(f"{league_name}")
     col1, col2 = st.columns(2)
     with col1:
         season_filter = st.multiselect("Wybierz sezon, z którego chcesz zobaczyć tabelę oraz statystyki",
-            options = standings['season'].unique(), on_change=showDateButton, max_selections=1, key=f"{current_league}_season_filter")
+            options = standings['season'].unique(), max_selections=1, key=f"{current_league}_season_filter")
 
         if season_filter == []:
             season_filter_matches = sorted(standings['season'].unique(), reverse=True)[0]
@@ -531,11 +511,9 @@ def loadPage(current_league):
         standings_data.append(team_stats)
 
     html_table = generate_html_table(standings_data)
-    # table.columns = [ 'Zespół', 'Mecze rozegrane', 'Wygrane', 'Remisy', 'Porażki', 'Różnica bramek', 'Bramki strzelone', 'Bramki stracone', 'Punkty']
-
+    
     col1, col2, col3 = st.columns([1,5,1])
     with col2:
-        # st.table(table)
         st.components.v1.html(html_table, height=670)
 
     # Filtry dla meczów
@@ -543,8 +521,6 @@ def loadPage(current_league):
 
     with filtr1:
         team_filter = st.multiselect("Wybierz drużynę", options = sorted(df_filtered[df_filtered['season'] == season_filter_matches]['home_team'].unique()), key=f"{current_league}_team_filter")
-    # with filtr2:
-    #     number_of_matches = st.slider("Wybierz liczbę wyświetlanych meczów", min_value=10, max_value=100, step=5, value=st.session_state["PLnumber_of_matches"], key="PLnumber_of_matches")
 
     team_filter2=team_filter
 
@@ -585,108 +561,4 @@ def loadPage(current_league):
 
 
     with col2:
-        # st.components.v1.html(generate_html_match_list(records_to_show), height=4000)
         st.markdown(generate_html_match_list(all_records_to_show), unsafe_allow_html=True)
-
-    # for i in range(min(50, df_filtered['home_team'].count())):
-    #     col1, col2, col3, col4, col5, col6 = st.columns([3,5,2,5,2,2])
-    #     with col1:
-    #         st.markdown(f"""
-    #                 <div style="text-align: center; font-size: 15px;
-    #                     background-color: #f8f9ab; 
-    #                     padding: 20px 0;
-    #                     margin: 10px;
-    #                     margin-top: 0;
-    #                     box-shadow: 4px 4px 8px rgba(0.2, 0.2, 0.2, 0.2);">{df_filtered.iloc[i]['date']} {df_filtered.iloc[i]['time']}
-    #                 </div>""", unsafe_allow_html=True)
-    #     with col2:
-    #         st.markdown(f"""
-    #                 <div style="text-align: center; font-size: 15px;
-    #                     background-color: #f8f9ab; 
-    #                     padding: 20px 0;
-    #                     margin: 10px;
-    #                     margin-top: 0;
-    #                     box-shadow: 4px 4px 8px rgba(0.2, 0.2, 0.2, 0.2);">{df_filtered.iloc[i]['home_team']}
-    #                 </div>""", unsafe_allow_html=True)
-    #     with col3:
-    #         st.markdown(f"""
-    #                 <div style="text-align: center; font-size: 15px;
-    #                     background-color: #f8f9ab; 
-    #                     padding: 20px 0;
-    #                     margin: 10px;
-    #                     margin-top: 0;
-    #                     box-shadow: 4px 4px 8px rgba(0.2, 0.2, 0.2, 0.2);">{df_filtered.iloc[i]['home_goals']} - {df_filtered.iloc[i]['away_goals']}
-    #                 </div>""", unsafe_allow_html=True)
-    #     with col4:
-    #         st.markdown(f"""
-    #                 <div style="text-align: center; font-size: 15px;
-    #                     background-color: #f8f9ab; 
-    #                     padding: 20px 0;
-    #                     margin: 10px;
-    #                     margin-top: 0;
-    #                     box-shadow: 4px 4px 8px rgba(0.2, 0.2, 0.2, 0.2);">{df_filtered.iloc[i]['away_team']}
-    #                 </div>""", unsafe_allow_html=True)
-    #     with col5:
-    #         st.markdown(f"""
-    #                 <div style="text-align: center; font-size: 15px;
-    #                     background-color: #f8f9ab; 
-    #                     padding: 20px 0;
-    #                     margin: 10px;
-    #                     margin-top: 0;
-    #                     box-shadow: 4px 4px 8px rgba(0.2, 0.2, 0.2, 0.2);">Kolejka {df_filtered.iloc[i]['round']} 
-    #                 </div>""", unsafe_allow_html=True)
-    #     with col6:
-    #         st.markdown('<div class="custom-button">', unsafe_allow_html=True)
-    #         st.button(
-    #             "Pokaż statystyki",
-    #             key=f"button_{i}",
-    #             on_click=showStats,
-    #             args=(i,),
-    #         )
-    #         st.markdown('</div>', unsafe_allow_html=True)
-
-        # Wyświetlanie dodatkowych informacji pod wierszem, jeśli jest włączone
-        # if st.session_state.get(f"PLshow_row_{i}", False):
-        #     row = df_filtered.iloc[i]
-        #     st.markdown(f"""
-        #             <div style="text-align: center; font-size: 15px;
-        #                 background-color: #f8f9fa; 
-        #                 border-radius: 10px; 
-        #                 padding: 20px;
-        #                 margin: 20px;
-        #                 box-shadow: 4px 4px 8px rgba(0.2, 0.2, 0.2, 0.2);">
-        #                 <p style='text-align: center; font-size: 20px;'>Statystyki meczu {df_filtered.iloc[i]['home_team']} - {df_filtered.iloc[i]['away_team']}:</p>
-        #                 <p style='text-align: center; font-size: 20px;'>Sędzia: {df_filtered.iloc[i]['referee']}</p>
-        #             </div>""", unsafe_allow_html=True)
-        #     categories = ["Posiadanie piłki", "Strzały", "Strzały na bramkę", "Rzuty wolne", "Rzuty rózne",
-        #         "Spalone", "Faule", "Żółte kartki", "Czerwone kartki", "Podania", "Celne podania"]
-        #     # trzeba będzie dodać Ball Possession jako pierwsze
-        #     home_stats = ["54", df_filtered.iloc[i]["home_shots"],
-        #         df_filtered.iloc[i]["home_shots_on_target"], df_filtered.iloc[i]["home_fouled"],
-        #         df_filtered.iloc[i]["home_corner_kicks"], df_filtered.iloc[i]["home_offsides"], df_filtered.iloc[i]["home_fouls"],
-        #         df_filtered.iloc[i]["home_cards_yellow"], df_filtered.iloc[i]["home_cards_red"],
-        #         df_filtered.iloc[i]["home_passes"], df_filtered.iloc[i]["home_passes_completed"]]
-        #     away_stats = ["46", df_filtered.iloc[i]["away_shots"],
-        #         df_filtered.iloc[i]["away_shots_on_target"], df_filtered.iloc[i]["away_fouled"],
-        #         df_filtered.iloc[i]["away_corner_kicks"], df_filtered.iloc[i]["away_offsides"], df_filtered.iloc[i]["away_fouls"],
-        #         df_filtered.iloc[i]["away_cards_yellow"], df_filtered.iloc[i]["away_cards_red"],
-        #         df_filtered.iloc[i]["away_passes"], df_filtered.iloc[i]["away_passes_completed"]]
-
-        #     home_stats = [int(v) for v in home_stats]
-        #     away_stats = [int(v) for v in away_stats]
-
-        #     # Funkcja do rysowania pojedynczego wykresu dla każdej statystyki
-        #     col1, col2, col3 = st.columns([2,5,2])
-        #     with col2:
-        #         statsGraph(home_stats, away_stats, categories)
-
-        #     if st.button(
-        #         "Pokaż więcej statystyk",
-        #         key=f"PLshow_stats_button_{i}",
-        #         args=(i,),
-        #     ):
-        #         restartStats()
-        #         st.session_state["PLstats_id"] = df_filtered.iloc[i]
-        #         st.switch_page("pagesHid/Statystyki Premier League.py")
-
-    # st.write(st.session_state)

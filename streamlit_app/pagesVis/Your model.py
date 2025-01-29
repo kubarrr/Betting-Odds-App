@@ -113,8 +113,8 @@ def load_team_names_data():
     home_team = st.query_params.get("home_team", "Arsenal")
     today_date = datetime.datetime.today()
     date = st.query_params.get("date", today_date)
-    matches = pd.read_csv("https://raw.githubusercontent.com/17Andri17/Betting-Odds-System/refs/heads/main/data/final_prepared_data_with_weather_new.csv")
-    new_matches=pd.read_csv("https://raw.githubusercontent.com/17Andri17/Betting-Odds-System/refs/heads/main/data/new_matches_fbref.csv")
+    matches = pd.read_csv("../data/final_prepared_data_with_weather_new.csv")
+    new_matches=pd.read_csv("../data/new_matches_fbref.csv")
     return home_team, date, matches, new_matches
 
 home_team, date, matches, new_matches = load_team_names_data()
@@ -171,7 +171,7 @@ away_team = st.text_input("Nazwa drużyny gości", away_team)
 st.subheader("Statystyki drużyny gospodarzy")
 col1, col2, col3=st.columns([1, 1, 1])
 with col1:
-    home_avg_goals = st.number_input("Średnia liczba bramek w ostatnich 5 meczach", min_value=0.0, value=home_last5_goals, step=0.1)
+    home_avg_goals = st.number_input("Średnia liczba bramek w ostatnich 5 meczach", min_value=0.0, value=home_last5_goals, step=0.1, key="home_avg_goals")
 with col2:
     home_offensive_power = st.number_input("Siła ofensywna", min_value=0.0, value=1.2, step=0.1)
 with col3:
@@ -180,7 +180,7 @@ with col3:
 st.subheader("Statystyki drużyny gości")
 col1, col2, col3=st.columns([1, 1, 1])
 with col1:
-    away_avg_goals = st.number_input("Średnia liczba bramek w ostatnich 5 meczach", min_value=0.0, value=away_last5_goals, step=0.1)
+    away_avg_goals = st.number_input("Średnia liczba bramek w ostatnich 5 meczach", min_value=0.0, value=away_last5_goals, step=0.1, key="away_avg_goals")
 with col2:  
     away_offensive_power = st.number_input("Siła ofensywna", min_value=0.0, value=1.1, step=0.1)
 with col3:    

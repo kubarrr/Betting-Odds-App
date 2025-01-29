@@ -17,89 +17,10 @@ css = """
     """
 st.html(f"<style>{css}</style>")
 
-# @st.cache_data
-# def loadData():
-#     df = pd.read_csv("../final_prepared_data_with_new.csv")
-#     df["date"] = pd.to_datetime(df["date"], errors="coerce")  # Najpierw konwersja do datetime
-#     df["date"] = df["date"].astype(str)
-#     df["formation_home"] = df["formation_home"].str.replace(r"-1-1$", "-2", regex=True)
-#     df["formation_away"] = df["formation_away"].str.replace(r"-1-1$", "-2", regex=True)
-#     df["formation_home"] = df["formation_home"].str.replace("4-1-2-1-2", "4-3-1-2", regex=True)
-#     df["formation_away"] = df["formation_away"].str.replace("4-1-2-1-2", "4-3-1-2", regex=True)
-#     df["round"] = df["round"].astype(int)
-#     df["home_goals"] = df["home_goals"].astype(int)
-#     df["away_goals"] = df["away_goals"].astype(int)
-#     df = df.sort_values("round")
-#     dfPL = df[df["league"] == "pl"]
-#     dfLL = df[df["league"] == "ll"]
-#     dfL1 = df[df["league"] == "l1"]
-#     dfBun = df[df["league"] == "bl"]
-#     dfSA = df[df["league"] == "sa"]
-
-#     players_pl = pd.read_csv("../players_pl.csv")
-#     players_bl = pd.read_csv("../players_bl.csv")
-#     players_ll = pd.read_csv("../players_ll.csv")
-#     players_l1 = pd.read_csv("../players_l1.csv")
-#     players_sa = pd.read_csv("../players_sa.csv")
-#     players_new = pd.read_csv("../new_players.csv")
-    
-#     players = pd.concat([players_pl, players_ll, players_l1, players_bl, players_sa, players_new], ignore_index=True)
-#     players = players.rename(columns={"position": "position_x"})
-#     players["date"] = pd.to_datetime(players["date"], errors="coerce")  # Najpierw konwersja do datetime
-#     players["date"] = players["date"].astype(str)
-
-#     standings = pd.read_csv("../standings_with_new.csv")
-#     standings['date']=pd.to_datetime(standings['date'])
-#     standings['goal_difference'] = standings['goal_difference'].astype(int)
-#     standings['goals'] = standings['goals'].astype(int) 
-#     standings['goals_conceded'] = standings['goals_conceded'].astype(int)
-#     standingsPL = standings[standings["league"] == "pl"]
-#     standingsLL = standings[standings["league"] == "ll"]
-#     standingsL1 = standings[standings["league"] == "l1"]
-#     standingsBun = standings[standings["league"] == "bl"]
-#     standingsSA = standings[standings["league"] == "sa"]
-
-#     odds = pd.read_csv("../odds.csv")
-#     oddsPL = odds[odds["Div"] == "E0"]
-#     oddsLL = odds[odds["Div"] == "SP1"]
-#     oddsL1 = odds[odds["Div"] == "F1"]
-#     oddsBun = odds[odds["Div"] == "D1"]
-#     oddsSA = odds[odds["Div"] == "I1"]
-
-#     return dfPL, dfLL, dfL1, dfBun, dfSA, standingsPL, standingsLL, standingsL1, standingsBun, standingsSA, players, oddsPL, oddsLL, oddsL1, oddsBun, oddsSA
-
-# # Sprawdzenie, czy dane są już w session_state
-# if "dfPL" not in st.session_state:
-#     dfPL, dfLL, dfL1, dfBun, dfSA, standingsPL, standingsLL, standingsL1, standingsBun, standingsSA, players, oddsPL, oddsLL, oddsL1, oddsBun, oddsSA = loadData()
-#     st.session_state["dfPL"] = dfPL
-#     st.session_state["standingsPL"] = standingsPL
-#     st.session_state["playersPL"] = players
-#     st.session_state["oddsPL"] = oddsPL
-
-#     st.session_state["dfLL"] = dfLL
-#     st.session_state["standingsLL"] = standingsLL
-#     #st.session_state["playersPL"] = players
-#     st.session_state["oddsLL"] = oddsPL
-
-#     st.session_state["dfL1"] = dfL1
-#     st.session_state["standingsL1"] = standingsL1
-#     #st.session_state["playersPL"] = players
-#     st.session_state["oddsL1"] = oddsL1
-
-#     st.session_state["dfBun"] = dfBun
-#     st.session_state["standingsBun"] = standingsBun
-#     #st.session_state["playersPL"] = players
-#     st.session_state["oddsBun"] = oddsBun
-
-#     st.session_state["dfSA"] = dfSA
-#     st.session_state["standingsSA"] = standingsSA
-#     #st.session_state["playersPL"] = players
-#     st.session_state["oddsSA"] = oddsSA
-
 @st.cache_data
 def loadData():
     df = pd.read_csv("../data/final_prepared_data_with_new.csv")
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")  # Najpierw konwersja do datetime
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df["date"] = df["date"].astype(str)
     df["formation_home"] = df["formation_home"].str.replace(r"-1-1$", "-2", regex=True)
     df["formation_away"] = df["formation_away"].str.replace(r"-1-1$", "-2", regex=True)
@@ -116,7 +37,7 @@ def loadData():
     dfSA = df[df["league"] == "sa"]
 
     df = pd.read_csv("../data/new_matches_fbref.csv")
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")  # Najpierw konwersja do datetime
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df["date"] = df["date"].astype(str)
     df["formation_home"] = df["formation_home"].str.replace(r"-1-1$", "-2", regex=True)
     df["formation_away"] = df["formation_away"].str.replace(r"-1-1$", "-2", regex=True)
@@ -143,15 +64,18 @@ def loadData():
 
     return dfPL, dfLL, dfBL, dfL1, dfSA, standingsPL, standingsLL, standingsBL, standingsL1, standingsSA, dfPLNew, dfBLNew, dfLLNew, dfL1New, dfSANew
 
+@st.cache_resource
 def load_model(model_path):
     model = torch.load(model_path, map_location=torch.device('cpu'))
     model.eval()
     return model
 
+@st.cache_resource
 def load_scaler(scaler_path):
     scaler = joblib.load(scaler_path)
     return scaler
 
+@st.cache_resource
 def load_selected_fetures(selected_features_path):
     with open(selected_features_path, "r", encoding="utf-8") as f:
         selected_features = json.load(f)
@@ -166,6 +90,7 @@ def predict_outcome(input_features, model):
 def getCourse(prob):
     return round(1 / prob, 2)
 
+@st.cache_data
 def generate_html_table(teams_stats):
     html_template = """
         <style>
@@ -269,6 +194,7 @@ def generate_html_table(teams_stats):
         """
     return html_template.format(rows=rows)
 
+@st.cache_data
 def generate_html_match_list(df, league):
     scaler_outcome = load_scaler("./models/outcome_scaler.pkl")
     selected_features_outcome = load_selected_fetures("./models/outcome_features.json")
@@ -463,6 +389,7 @@ def generate_html_match_list(df, league):
 
     return html_template
 
+@st.cache_data
 def generate_league_table(standings, place, league):
     current_standings_date = sorted(standings['date'].unique())[-1]
     standings = standings[standings["date"] == current_standings_date]
@@ -577,14 +504,7 @@ html_table_final = generate_league_table(standingsPL, 16, "Premier League")
 col1, col2 = st.columns([3,2])
 with col1:
     st.markdown(generate_html_match_list(records_to_show, "pl"), unsafe_allow_html=True)
-    # st.components.v1.html(weather_style, height=190)
-    # st.markdown(html_h2h, unsafe_allow_html=True)
-    # st.components.v1.html(form_html, height=240)
-    # st.pyplot(fig21)
-    # if (len(probabilities)>0):
-    #     st.pyplot(fig22)
 with col2:
-    #st.markdown(tab_html, unsafe_allow_html=True)
     st.components.v1.html(html_table_final, height=520)
 
 st.markdown(
@@ -619,14 +539,7 @@ html_table_final = generate_league_table(standingsLL, 16, "La Liga")
 col1, col2 = st.columns([3,2])
 with col1:
     st.markdown(generate_html_match_list(records_to_show, "ll"), unsafe_allow_html=True)
-    # st.components.v1.html(weather_style, height=190)
-    # st.markdown(html_h2h, unsafe_allow_html=True)
-    # st.components.v1.html(form_html, height=240)
-    # st.pyplot(fig21)
-    # if (len(probabilities)>0):
-    #     st.pyplot(fig22)
 with col2:
-    #st.markdown(tab_html, unsafe_allow_html=True)
     st.components.v1.html(html_table_final, height=490)
 
 
@@ -662,14 +575,7 @@ html_table_final = generate_league_table(standingsL1, 14, "Ligue 1")
 col1, col2 = st.columns([3,2])
 with col1:
     st.markdown(generate_html_match_list(records_to_show, "l1"), unsafe_allow_html=True)
-    # st.components.v1.html(weather_style, height=190)
-    # st.markdown(html_h2h, unsafe_allow_html=True)
-    # st.components.v1.html(form_html, height=240)
-    # st.pyplot(fig21)
-    # if (len(probabilities)>0):
-    #     st.pyplot(fig22)
 with col2:
-    #st.markdown(tab_html, unsafe_allow_html=True)
     st.components.v1.html(html_table_final, height=490)
 
 
@@ -705,14 +611,7 @@ html_table_final = generate_league_table(standingsBL, 14, "Bundesliga")
 col1, col2 = st.columns([3,2])
 with col1:
     st.markdown(generate_html_match_list(records_to_show, "bl"), unsafe_allow_html=True)
-    # st.components.v1.html(weather_style, height=190)
-    # st.markdown(html_h2h, unsafe_allow_html=True)
-    # st.components.v1.html(form_html, height=240)
-    # st.pyplot(fig21)
-    # if (len(probabilities)>0):
-    #     st.pyplot(fig22)
 with col2:
-    #st.markdown(tab_html, unsafe_allow_html=True)
     st.components.v1.html(html_table_final, height=490)
 
 st.markdown(
@@ -747,14 +646,7 @@ html_table_final = generate_league_table(standingsSA, 16, "Serie A")
 col1, col2 = st.columns([3,2])
 with col1:
     st.markdown(generate_html_match_list(records_to_show, "sa"), unsafe_allow_html=True)
-    # st.components.v1.html(weather_style, height=190)
-    # st.markdown(html_h2h, unsafe_allow_html=True)
-    # st.components.v1.html(form_html, height=240)
-    # st.pyplot(fig21)
-    # if (len(probabilities)>0):
-    #     st.pyplot(fig22)
 with col2:
-    #st.markdown(tab_html, unsafe_allow_html=True)
     st.components.v1.html(html_table_final, height=490)
 
 st.markdown(
@@ -785,37 +677,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-# Define local image paths and text content
-# columns_data = [
-#     {"image_path": "graphics/Germany.png", "text": "Bundesliga", "button_label": "Przejdź do strony"},
-#     {"image_path": "graphics/Spain.png", "text": "La Liga", "button_label": "Przejdź do strony"},
-#     {"image_path": "graphics/France.png", "text": "Ligue 1", "button_label": "Przejdź do strony"},
-#     {"image_path": "graphics/England.png", "text": "Premier League", "button_label": "Przejdź do strony"},
-#     {"image_path": "graphics/Italy.png", "text": "Serie A", "button_label": "Przejdź do strony"}
-# ]
-
-# Create 5 columns
-# cols = st.columns(5)
-
-# # Populate each column with content
-# for i, col in enumerate(cols):
-#     with col:
-#         try:
-#             image = Image.open(columns_data[i]['image_path'])
-#             st.image(image.resize((1280,854)), use_container_width=True)
-
-#         except FileNotFoundError:
-#             col.error(f"Nie znaleziono obrazu: {columns_data[i]['image_path']}")
-
-# cols = st.columns(5)
-# for i, col in enumerate(cols):
-#     with col:
-#         if st.button(
-#                 f"{columns_data[i]['text']}",
-#                 key=f"HomeButton{i}"
-#             ):
-#                 st.switch_page(f"pagesVis/{columns_data[i]['text']}.py")
 
 st.write("""
 Zakłady bukmacherskie to forma rozrywki, która cieszy się dużą popularnością na całym świecie. 

@@ -20,7 +20,7 @@ from scipy.optimize import minimize_scalar
 from urllib.parse import quote
 
 current_league = st.query_params.get("league")
-#@st.cache_data
+@st.cache_data
 def create_team_structure(idx, formation, starting_eleven):
     formation_parts = list(map(int, formation.split('-')))
     used_players = set()
@@ -246,7 +246,7 @@ def create_team_structure(idx, formation, starting_eleven):
 
     return formation_array
 
-#@st.cache_data
+@st.cache_data
 def get_starters(group):
     starters = []
     group = group.sort_index()
@@ -279,7 +279,7 @@ def get_starters(group):
     group = group.iloc[starters]
     return group
 
-#@st.cache_data
+@st.cache_data
 def squads(players, date, home_team, away_team, formation_home, formation_away):
     home_team_players = players[(players["date"]==date) & (players["team"]==home_team)]
     away_team_players = players[(players["date"]==date) & (players["team"]==away_team)]
@@ -341,7 +341,7 @@ def squads(players, date, home_team, away_team, formation_home, formation_away):
     plt.show()
     st.write(fig)
 
-#@st.cache_data
+@st.cache_data
 def statsGraph(home_stats, away_stats, categories):
     total_stats = np.array(home_stats) + np.array(away_stats)
     home_ratios = np.array(home_stats) / total_stats
@@ -498,15 +498,18 @@ def get_probabilities(all_features):
     
     return probabilities
 
+@st.cache_resource
 def load_model(model_path):
     model = torch.load(model_path, map_location=torch.device('cpu'))
     model.eval()
     return model
 
+@st.cache_resource
 def load_scaler(scaler_path):
     scaler = joblib.load(scaler_path)
     return scaler
 
+@st.cache_resource
 def load_selected_fetures(selected_features_path):
     with open(selected_features_path, "r", encoding="utf-8") as f:
         selected_features = json.load(f)
@@ -737,6 +740,7 @@ def generate_html_match_list(df, team, home, title):
     html_template += f"{matches_html}</div></div>"
 
     return html_template
+
 @st.cache_data
 def load_data():
     odds = pd.read_csv("../data/odds.csv")
@@ -898,7 +902,6 @@ home_team = st.query_params["home_team"]
 date = pd.to_datetime(st.query_params["date"])
 league = st.query_params["league"]
 odds, standings, players, matches = get_processed_data(home_team, date, league)
-#players, matches, odds, home_team, date, standings = load_data()
 
 curr_match = matches[(matches["date"] == date) & (matches["home_team"] == home_team)].iloc[0]
 matches2 = matches.copy()
@@ -1052,8 +1055,7 @@ for prob, color in zip(probabilities2, colors):
     start += prob
 
 ax.set_xlim(0, 1)
-ax.axis('off')  # Turn off the axis
-# plt.title('Prawdopodbieństwo zdarzeń modelu')
+ax.axis('off') 
 plt.show()
 plt.tight_layout()
 
@@ -1071,8 +1073,7 @@ if len(probabilities) > 0:
         start += prob
 
     ax.set_xlim(0, 1)
-    ax.axis('off')  # Turn off the axis
-    # plt.title('Prawdopodbieństwo zdarzeń bukmacherów', pad=10)
+    ax.axis('off')
     plt.show()
     plt.tight_layout()
 
@@ -1201,21 +1202,16 @@ h2h = h2h.sort_values(by=["date", "time"], ascending=False)
 with tab5:
     col1, col2, col3 = st.columns([1,5,1])
     with col2:
-        # st.markdown("""<h3 style="text-align: center; margin-bottom: -28px">Prawdopodobieństwo wyniku</h3>""", unsafe_allow_html=True)
-        # st.pyplot(fig21)
         st.markdown(prob_html, unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns([3,3,3])
-    with col1:        
-        # st.markdown(last_home, unsafe_allow_html=True)
+    with col1:
         st.markdown(generate_html_match_list(home_matches.head(5), home_team, "home", "Ostatnie mecze gospodarzy"), unsafe_allow_html=True)
 
-    with col2:        
-        # st.markdown(last_home, unsafe_allow_html=True)
+    with col2:
         st.markdown(generate_html_match_list(h2h.head(5), home_team, "homeaway", "Bezpośrednie mecze"), unsafe_allow_html=True)
 
-    with col3:        
-        # st.markdown(last_away, unsafe_allow_html=True)
+    with col3:
         st.markdown(generate_html_match_list(away_matches.head(5), away_team, "away", "Ostatnie mecze gości"), unsafe_allow_html=True)
     
     # Radar plot
@@ -1244,11 +1240,6 @@ with tab5:
     plt.legend(loc='lower right', bbox_to_anchor=(0.2, 0.2))
     plt.title('Porównanie wybranych statystyk z ostatnich 5 meczów', size=15, pad=10)
 
-    # col1, col2, col3=st.columns([2, 3, 2])
-    # with col2:
-    #     st.pyplot(fig4)
-
-    # filtr1, filtr2 = st.columns(2)
 
     css = """
     .st-key-team_filter *, .st-key-stat_filter *, .st-key-team_filter, .st-key-stat_filter {
@@ -1266,61 +1257,6 @@ with tab5:
 
     """
     st.html(f"<style>{css}</style>")
-    # with filtr1:
-    #     team_filter = st.selectbox("Wybierz drużynę", options=[home_team, away_team], key="team_filter")
-    # with filtr2:
-    #     stat_filter = st.selectbox("Wybierz statystykę", options=["Bramki w meczu", "Strzelone bramki", "Stracone bramki"], key="stat_filter")
-    
-
-    # team = team_filter
-    # stat_name = stat_filter
-    # n = 10
-    # last_matches = select_last_matches(matches, team, date, n)
-    # if stat_name == "Strzelone bramki":
-    #     stat = "goals"
-    #     stat_df = get_stat(last_matches, team, stat)
-    #     threshold = 1.5
-    # if stat_name == "Stracone bramki":
-    #     stat = "goals"
-    #     stat_df = get_stat(last_matches, team, stat, True)
-    #     threshold = 1.5
-    # if stat_name == "Bramki w meczu":
-    #     stat = "goals"
-    #     stat_df = get_stat(last_matches, team, stat, sum = True)
-    #     threshold = 2.5
-
-    # # Set colors: green if above threshold, red otherwise
-    # colors = ["green" if val > threshold else "red" for val in stat_df[stat]]
-
-    # # Plot the bar chart
-    # fig3 = plt.figure(figsize=(10, 6))
-    # bars = plt.bar(stat_df["new_date"], stat_df[stat], color=colors)
-
-    # # Add threshold line
-    # plt.axhline(y=threshold, color="gray", linestyle="--", label=f"Linia = {threshold}")
-
-    # # Add value labels on top of bars
-    # for bar in bars:
-    #     height = int(bar.get_height())
-    #     if height == 0:
-    #         plt.text(bar.get_x() + bar.get_width() / 2, height, str(height),
-    #             ha="center", va="bottom", fontsize=20)
-    #     else:
-    #         plt.text(bar.get_x() + bar.get_width() / 2, height-0.4, str(height),
-    #             ha="center", va="bottom", fontsize=20)
-
-
-    # plt.title(stat_name.capitalize() + " " + team + " w ostatnich " + str(n) + " meczach")
-    # plt.xlabel("Mecze")
-    # plt.ylabel(stat)
-    # plt.legend()
-    # plt.tight_layout()
-
-    # col1, col2 = st.columns([1,1])
-    # with col1:
-    #     st.write(fig3)
-    # with col2:
-    #     st.write(fig3)
 
 
 ############ Zakładka z informacjami ############
@@ -1739,9 +1675,6 @@ with tab1:
         st.components.v1.html(weather_style, height=190)
         st.markdown(html_h2h, unsafe_allow_html=True)
         st.components.v1.html(form_html, height=240)
-        # st.pyplot(fig21)
-        # if (len(probabilities)>0):
-        #     st.pyplot(fig22)
     with col2:
         st.markdown(tab_html, unsafe_allow_html=True)
         st.components.v1.html(html_table_final, height=200)
@@ -1760,8 +1693,7 @@ wyniki = [
 ]
 
 # Konwersja danych do macierzy
-rows, cols = 4, 3  # Liczba wierszy i kolumn
-# table_data = [wyniki[i:i + cols] for i in range(0, len(wyniki), cols)]
+rows, cols = 4, 3
 table_data = [wyniki[i:i + cols] for i in range(0, len(wyniki), cols)]
 match_score = str(curr_match["home_goals"]) + ":" + str(curr_match["away_goals"])
 
@@ -2036,8 +1968,6 @@ with tab4:
     with col2:
         st.components.v1.html(odds_html, height=2580)
 
-
-####################### testyyyyyyyyyyyyyyyy
 # Funkcja generująca wykres
 def create_bar_chart(df, stat, line, team, stat_type):
     if stat_type == f"{stat_selected} w meczu":
@@ -2106,7 +2036,6 @@ with tab5:
     col1, col2 = st.columns([1, 2])
 
     with col1:
-        # st.header("Filtry")
         
         team_filter = st.radio(
             "Wybierz drużynę",
@@ -2176,6 +2105,5 @@ with tab5:
     df = select_last_matches(matches, team_filter, date, 10, where=where)
 
     with col2:
-        # st.header("Wykres")
         chart = create_bar_chart(df, stat_selected, line_value, team_filter, stat_type)
         st.plotly_chart(chart)
