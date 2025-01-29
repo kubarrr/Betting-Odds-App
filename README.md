@@ -1,8 +1,8 @@
-# System wyznaczający kursy bukmacherkie na podstawie analizy wyników meczów piłkarskich
-Jest to oczyszczone repozytorium, na którym są tylko pliki potrzebne do poprawnego funkcjonowania aplikacji w środowisku lokalnym.
+# App for football fans with presented odds predicted by developed machine learning models
+This is a cleaned-up repository containing only the files necessary for the proper functioning of the application in a local environment.
 
-Link do repozytorium, w którym pracowaliśmy: 
+Link to the repository we worked on:
 https://github.com/17Andri17/Betting-Odds-System/
 
-Link do wdrożonej strony:
+Link to the deployed website:
 https://football-bookmaker-odds.streamlit.app/
